@@ -489,26 +489,12 @@ export class MultilayerIjump extends GeneralizedAstarAutorouter {
             })
           }
         }
-        if (travelDir.wallDistance === Infinity) {
-          travelDirs3.push({
-            ...travelDir,
-            travelDistance: goalDistAlongTravelDir,
-            enterMarginCost: 0,
-            travelMarginCostFactor: 1,
-          })
-        } else if (travelDir.wallDistance > this.largestMargin) {
-          for (const { margin, enterCost, travelCostFactor } of this
-            .marginsWithCosts) {
-            if (travelDir.wallDistance > this.largestMargin + margin) {
-              travelDirs3.push({
-                ...travelDir,
-                travelDistance: travelDir.wallDistance - margin,
-                enterMarginCost: enterCost,
-                travelMarginCostFactor: travelCostFactor,
-              })
-            }
-          }
-        }
+        // Note: We intentionally do NOT push wall-distance nodes here.
+        // Pushing nodes at wallDistance inside the overcomeDistance branch
+        // caused "wild trace jumps" (Issue #92) — the router would jump
+        // all the way to the far wall instead of stopping at the obstacle
+        // edge. The single-layer IJumpAutorouter has this same pattern
+        // (no extra wall-distance push in the overcomeDistance branch).
       } else if (travelDir.wallDistance !== Infinity) {
         for (const { margin, enterCost, travelCostFactor } of this
           .marginsWithCosts) {
